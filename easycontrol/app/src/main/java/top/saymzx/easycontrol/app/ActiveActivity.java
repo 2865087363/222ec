@@ -43,3 +43,17 @@ protected void onCreate(Bundle savedInstanceState) {
     setButtonListener();
     drawUi();
 }
+private void drawUi() {
+    try {
+        if (activityActiveBinding == null) return;
+
+        activityActiveBinding.key.setText(AppData.setting.getActiveKey());
+
+        activityActiveBinding.url.setOnClickListener(v ->
+                PublicTools.startUrl(
+                        this,
+                        "https://gitee.com/mingzhixianweb/easycontrol/blob/master/DONATE.md"
+                )
+        );
+    } catch (Exception ignored) {}
+}
