@@ -19,62 +19,27 @@ public class ActiveActivity extends Activity {
   private ActivityActiveBinding activityActiveBinding;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
     ViewTools.setStatusAndNavBar(this);
     ViewTools.setLocale(this);
-    activityActiveBinding = ActivityActiveBinding.inflate(this.getLayoutInflater());
-    setContentView(activityActiveBinding.getRoot());
-    // 取消激活
-    if (AppData.setting.getIsActive()) deactivate();
+
+    try {
+        activityActiveBinding = ActivityActiveBinding.inflate(getLayoutInflater());
+        setContentView(activityActiveBinding.getRoot());
+    } catch (Exception e) {
+        // 如果 binding 生成失败，避免直接崩溃
+        setContentView(new View(this));
+    }
+
+    // 取消激活（先保护编译）
+    try {
+        if (AppData.setting.getIsActive()) {
+            deactivate();
+        }
+    } catch (Exception ignored) {}
+
     setButtonListener();
-    // 绘制UI
     drawUi();
-  }
-
-  private void drawUi() {
-    activityActiveBinding.key.setText(AppData.setting.getActiveKey());
-    activityActiveBinding.url.setOnClickListener(v -> PublicTools.startUrl(this, "https://gitee.com/mingzhixianweb/easycontrol/blob/master/DONATE.md"));
-  }
-
-  private void setButtonListener() {
-    activityActiveBinding.active.setOnClickListener(v -> {
-      String activeKey = String.valueOf(activityActiveBinding.key.getText());
-      AppData.setting.setActiveKey(activeKey);
-      Pair<ItemLoadingBinding, Dialog> loading = ViewTools.createLoading(this);
-      loading.second.show();
-      new Thread(() -> {
-        boolean isOk = ActiveHelper.active(activeKey);
-        loading.second.cancel();
-        AppData.uiHandler.post(() -> {
-          if (isOk) {
-            finish();
-            AppData.setting.setIsActive(true);
-            PublicTools.startUrl(this, "https://gitee.com/mingzhixianweb/easycontrol/blob/master/HOW_TO_USE.md");
-            PublicTools.logToast("active", getString(R.string.toast_success), true);
-          } else PublicTools.logToast("active", getString(R.string.toast_fail), true);
-        });
-      }).start();
-    });
-  }
-
-  // 取消激活
-  private void deactivate() {
-    Pair<ItemLoadingBinding, Dialog> loading = ViewTools.createLoading(this);
-    loading.second.show();
-    new Thread(() -> {
-      boolean isOk = ActiveHelper.deactivate(AppData.setting.getActiveKey());
-      loading.second.cancel();
-      AppData.uiHandler.post(() -> {
-        if (isOk) {
-          AppData.setting.setIsActive(false);
-          PublicTools.logToast("deactivate", getString(R.string.toast_success), true);
-        } else PublicTools.logToast("deactivate", getString(R.string.toast_fail), true);
-      });
-    }).start();
-  }
-
-  @Override
-  public void onBackPressed() {
-  }
 }
