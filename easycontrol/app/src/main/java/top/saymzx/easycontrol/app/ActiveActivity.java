@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import top.saymzx.easycontrol.app.databinding.ActivityActiveBinding;
+import top.saymzx.easycontrol.app.helper.PublicTools;
 import top.saymzx.easycontrol.app.helper.ViewTools;
 
 public class ActiveActivity extends Activity {
@@ -36,12 +37,13 @@ public class ActiveActivity extends Activity {
             activityActiveBinding.key.setText("");
 
             activityActiveBinding.url.setOnClickListener(v ->
-                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                    intent.setData(android.net.Uri.parse(
+                    PublicTools.startUrl(
+                            this,
                             "https://gitee.com/mingzhixianweb/easycontrol/blob/master/DONATE.md"
-                    ));
-                    startActivity(intent);
+                    )
             );
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
+}
 }
